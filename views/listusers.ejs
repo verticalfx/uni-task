@@ -1,16 +1,19 @@
 <!doctype html>
 <html>
-  <head>
-    <title>Welcome to <%=shopData.shopName%></title>
-    <link rel="stylesheet"  type="text/css" href="/main.css" />
-  </head>
-  <body>
-    <h1><%=shopData.shopName%> Shop</h1>
-    <h2>Here are all the users</h2>
-    <ul>
-      <% availableUsers.forEach(function(user) { %>
-        <li><%= user.first_name %> <%= user.last_name %>, email: <%= user.email_address %></li>
-      <% }) %>
-    </ul>
-    </body>
+
+<head>
+  <title>Welcome to <%=shopData.shopName%></title>
+  <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+
+<body>
+  <h1><%=shopData.shopName%> Shop</h1>
+  <h2>Here are all the users</h2>
+  <ul>
+    <% availableUsers.forEach(function(user) { %>
+    <li><%= user.first_name %> <%= user.last_name %>, email: <%= user.email_address %></li>
+    <% }) %>
+  </ul>
+</body>
+
 </html>

@@ -5,11 +5,21 @@ const router = express.Router()
 
 const saltRounds = 10
 
+const redirectLogin = (req, res, next) => {
+    if (!req.session.userId) {
+        res.redirect('./login') // redirect to the login page
+    } else {
+        next(); // move to the next middleware function
+    }
+}
+
 router.get('/register', function (req, res, next) {
     const error = req.query.error || ''
 
-    res.render('register.ejs', {error});
-})    
+    res.render('register.ejs', {
+        error
+    });
+})
 
 router.post('/registered', function (req, res) {
     const first_name = req.body.first;
@@ -25,7 +35,9 @@ router.post('/registered', function (req, res) {
         }
 
         if (results.length > 0) {
-            return res.render('register', { error: 'Username or email already taken' });
+            return res.render('register', {
+                error: 'Username or email already taken'
+            });
         }
 
         bcrypt.hash(plainPassword, saltRounds, function (err, hashedPw) {
@@ -49,21 +61,25 @@ router.post('/registered', function (req, res) {
     });
 });
 
-router.get('/lists', function(req, res, next) {
+router.get('/lists', redirectLogin, function (req, res, next) {
     let sqlquery = "SELECT id, first_name, last_name, username, email_address FROM users"; // select only non-sensitive fields
     // execute sql query
     db.query(sqlquery, (err, result) => {
         if (err) {
             next(err);
         }
-        res.render("listusers.ejs", {availableUsers: result});
+        res.render("listusers.ejs", {
+            availableUsers: result
+        });
     });
 });
 
 router.get('/login', function (req, res, next) {
     const error = req.query.error || ''
 
-    res.render('login.ejs', {error});
+    res.render('login.ejs', {
+        error
+    });
 });
 
 router.post('/loggedin', function (req, res, next) {
@@ -77,26 +93,41 @@ router.post('/loggedin', function (req, res, next) {
         }
         if (result.length === 0) {
             console.log('Invalid username or password')
-            res.render('login.ejs', {error: 'Invalid username or password'});
+            res.render('login.ejs', {
+                error: 'Invalid username or password'
+            });
             return;
         }
 
         bcrypt.compare(password, result[0].password, function (err, result) {
             if (err) {
                 console.log(err)
-                res.render('login.ejs', {error: 'Invalid username or password'});
-            }
-            else if (result == true) {
+                res.render('login.ejs', {
+                    error: 'Invalid username or password'
+                });
+            } else if (result == true) {
+                req.session.userId = req.body.username;
                 res.send('You are logged in!');
+            } else {
+                res.render('login.ejs', {
+                    error: 'Invalid username or password'
+                });
             }
-            else {
-                res.render('login.ejs', {error: 'Invalid username or password'});
-            }
-          })
-        
-        });
+        })
+
     });
-        
+});
+
+router.get('/logout', redirectLogin, (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            return res.redirect('./')
+        }
+        res.send('you are now logged out. <a href=' + './' + '>Home</a>');
+    })
+})
+
+
 
 // Export the router object so index.js can access it
 module.exports = router
