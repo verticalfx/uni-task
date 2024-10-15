@@ -123,7 +123,7 @@ router.get('/logout', redirectLogin, (req, res) => {
         if (err) {
             return res.redirect('./')
         }
-        res.send('you are now logged out. <a href=' + './' + '>Home</a>');
+        res.send('you are now logged out. <a href=' + '../' + '>Home</a>');
     })
 })
 
