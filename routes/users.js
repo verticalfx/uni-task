@@ -4,6 +4,10 @@ const bcrypt = require('bcrypt')
 const router = express.Router()
 
 const saltRounds = 10
+const {
+    check,
+    validationResult
+} = require('express-validator');
 
 const redirectLogin = (req, res, next) => {
     if (!req.session.userId) {
@@ -21,12 +25,31 @@ router.get('/register', function (req, res, next) {
     });
 })
 
-router.post('/registered', function (req, res) {
-    const first_name = req.body.first;
-    const last_name = req.body.last;
-    const email_address = req.body.email;
-    const username = req.body.username;
-    const plainPassword = req.body.password;
+router.post('/registered', [
+    check('email').isEmail(),
+    check('password').isLength({
+        min: 8
+    }),
+    check('username').isLength({
+        min: 3
+    }),
+    check('first').isLength({
+        min: 2
+    }),
+    check('last').isLength({
+        min: 2
+    })
+], function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.redirect('./register');
+    }
+
+    const first_name = req.sanitize(req.body.first);
+    const last_name = req.sanitize(req.body.last);
+    const email_address = req.sanitize(req.body.email);
+    const username = req.sanitize(req.body.username);
+    const plainPassword = req.sanitize(req.body.password);
 
     let checkUserQuery = `SELECT * FROM users WHERE email_address = ? OR username = ?`;
     db.query(checkUserQuery, [email_address, username], (err, results) => {
@@ -51,11 +74,11 @@ router.post('/registered', function (req, res) {
             db.query(sqlquery, newData, (err, result) => {
                 if (err) {
                     return res.status(500).send('Database error');
-                } else {
-                    let message = `Hello ${first_name} ${last_name}, you are now registered! We will send an email to you at ${email_address}.`;
-                    message += ` Your password is: ${plainPassword} and your hashed password is: ${hashedPw}`;
-                    res.send(message);
                 }
+
+                let message = `Hello ${first_name} ${last_name}, you are now registered! We will send an email to you at ${email_address}.`;
+                message += ` Your password is: ${plainPassword} and your hashed password is: ${hashedPw}`;
+                res.send(message);
             });
         });
     });
@@ -82,10 +105,15 @@ router.get('/login', function (req, res, next) {
     });
 });
 
-router.post('/loggedin', function (req, res, next) {
+router.post('/loggedin', [check('username').notEmpty(), check('password').notEmpty()], function (req, res, next) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.redirect('./login');
+    }
+
     let sqlquery = "SELECT * FROM users WHERE username = ?";
-    let username = req.body.username;
-    let password = req.body.password;
+    let username = req.sanitize(req.body.username);
+    let password = req.sanitize(req.body.password);
 
     db.query(sqlquery, [username], (err, result) => {
         if (err) {
@@ -106,7 +134,7 @@ router.post('/loggedin', function (req, res, next) {
                     error: 'Invalid username or password'
                 });
             } else if (result == true) {
-                req.session.userId = req.body.username;
+                req.session.userId = username;
                 res.send('You are logged in!');
             } else {
                 res.render('login.ejs', {
