@@ -26,7 +26,7 @@ router.get('/search_result', [check('search_text').notEmpty().isLength({
     }
 
     // Search the database
-    
+
     let sqlquery = "SELECT * FROM books WHERE name LIKE '%" + req.query.search_text + "%'" // query database to get all the books
     // execute sql query
     db.query(sqlquery, (err, result) => {
@@ -57,7 +57,11 @@ router.get('/addbook', redirectLogin, function (req, res, next) {
     res.render('addbook.ejs')
 })
 
-router.post('/bookadded', [check('name').isLength({min: 3}), check('price').isLength({min: 1}).isNumeric()], redirectLogin, function (req, res, next) {
+router.post('/bookadded', [check('name').isLength({
+    min: 3
+}), check('price').isLength({
+    min: 1
+}).isNumeric()], redirectLogin, function (req, res, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         //console.log(errors)
