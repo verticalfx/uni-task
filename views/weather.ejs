@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Weather for <%=shopData.shopName%></title>
+  <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+
+<body>
+  <h1>Weather for <%=shopData.shopName%></h1>
+  <form method="POST" action="weather">
+    <p>City <input id="city" type="text" name="city" /></p>
+    <input type="submit" value="Check Weather" />
+  </form>
+</body>
+
+</html>
