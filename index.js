@@ -1,8 +1,8 @@
 // Import express and ejs
-var express = require ('express')
+var express = require('express')
 var ejs = require('ejs')
-var session = require ('express-session')
-var validator = require ('express-validator');
+var session = require('express-session')
+var validator = require('express-validator');
 const expressSanitizer = require('express-sanitizer');
 
 //Import mysql module
@@ -17,7 +17,9 @@ const port = 8000
 app.set('view engine', 'ejs')
 
 // Set up the body parser 
-app.use(express.urlencoded({ extended: true }))
+app.use(express.urlencoded({
+    extended: true
+}))
 
 // Set up public folder (for css and statis js)
 app.use(express.static(__dirname + '/public'))
@@ -34,7 +36,7 @@ app.use(session({
 app.use(expressSanitizer());
 
 // Define the database connection
-const db = mysql.createConnection ({
+const db = mysql.createConnection({
     host: 'localhost',
     user: 'bettys_books_app',
     password: 'qwertyuiop',
@@ -50,7 +52,9 @@ db.connect((err) => {
 global.db = db
 
 // Define our application-specific data
-app.locals.shopData = {shopName: "Bettys Books"}
+app.locals.shopData = {
+    shopName: "Bettys Books"
+}
 
 // Load the route handlers
 const mainRoutes = require("./routes/main")
@@ -72,3 +76,4 @@ app.use('/api', apiRoutes)
 
 // Start the web app listening
 app.listen(port, () => console.log(`Node app listening on port ${port}!`))
+

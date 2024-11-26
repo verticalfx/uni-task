@@ -11,7 +11,7 @@
   <h2>Here are the books that we sell:</h2>
   <ul>
     <% availableBooks.forEach(function(book) { %>
-    <li><%= book.name %>, £<%=book.price%> </li>
+    <li><%= book.book_name %> by <%= book.author_name %>, £<%=book.price%></li>
     <% }) %>
   </ul>
 </body>
